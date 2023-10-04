@@ -1,0 +1,78 @@
+import React, { useState, useEffect } from 'react';
+
+
+const deleteProduct = async (id) => {
+  try {
+    
+    const response = await fetch(`/api/products/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      
+      return true;
+    } else {
+      
+      throw new Error('Failed to delete product');
+    }
+  } catch (error) {
+    
+    throw error;
+  }
+};
+
+function Cart() {
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    if (localStorage.getItem('mycart') !== undefined) {
+      const storedItems = JSON.parse(localStorage.getItem('mycart'));
+      setCartItems(storedItems);
+    }
+  }, []);
+
+  const delItem = (id) => {
+    if (window.confirm('Do you want to delete?')) {
+      deleteProduct(id)
+        .then((res) => {
+          if (res) {
+            alert('Deleted');
+            
+          }
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+
+  return (
+    <div>
+      <h1>Cart</h1>
+      {cartItems.length > 0 ? (
+        <table width="40%">
+          {cartItems.map((item, index) => (
+            <tr key={index}>
+              <td>{item}</td>
+              <td>
+                {
+                  <button
+                    className="btn-btn-danger"
+                    onClick={() => delItem(item.id)}
+                  >
+                    Delete
+                  </button>
+                }
+              </td>
+            </tr>
+          ))}
+        </table>
+      ) : (
+        <p>Your Cart is Empty</p>
+      )}
+    </div>
+  );
+}
+
+export default Cart;
